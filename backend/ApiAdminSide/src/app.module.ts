@@ -1,37 +1,19 @@
-import {Module} from '@nestjs/common';
-import {ConfigModule, ConfigService} from '@nestjs/config';
-import {TypeOrmModule} from '@nestjs/typeorm';
-import {ZoneModule} from './common/modules';
-import {AppController} from './app.controller';
-import {AppService} from './app.service';
-
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      envFilePath: ['.env.development.local'],
-      load: [dbConfig, baseConfig],
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-    }),
-    ZoneModule,
   ],
   exports: [ConfigModule],
   controllers: [AppController],
-  providers: [
-    UniqueValidator,
-    ExistsValidator,
-    AppService,
-    SpecificationFactory,
-    {
-      provide: 'APP_GUARD',
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [AppService],
 })
-export class AppModule {
-}
+export class AppModule {}
