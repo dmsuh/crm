@@ -1,0 +1,21 @@
+stages:
+  - notify
+
+notify_dev:
+  stage: notify
+  image: alpine:latest
+  tags:
+    - docker
+    - dev
+  script:
+    - apk --no-cache add curl coreutils tzdata
+    - cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+    - echo "Europe/Moscow" >  /etc/timezone
+    - echo $CI_COMMIT_TIMESTAMP
+    - DATE_TAG=$(date +'%d.%m.%Y %H:%M' -d "$CI_COMMIT_TIMESTAMP")
+    - touch message.json
+    - echo $CI_COMMIT_MESSAGE
+    - >
+      echo "{\"chat_id\":\"-1001818728765\",\"text\":\"<b>Серверная часть админ-панели</b>\\n\\n$CI_COMMIT_MESSAGE\\n\\n$DATE_TAG, $GITLAB_USER_NAME\",\"parse_mode\":\"html\"}" > message.json
+
+      curl -sS -X POST -H "Content-Type: application/json; charset=UTF-8" -d @message.json https://api.telegram.org/bot460767342:AAH19VjZoIIO7OWB53P7SI93w6rFPjKyKrc/sendMessage
